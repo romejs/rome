@@ -1,3 +1,4 @@
+import {PrinterOptions, printTokenToString} from "./Printer";
 /**
  * Copyright (c) Facebook, Inc. and its affiliates.
  *
@@ -36,8 +37,13 @@ export type BuilderOptions = {
 };
 
 export default class Builder {
-	constructor(opts: BuilderOptions, comments: Array<AnyComment> = []) {
+	constructor(
+		opts: BuilderOptions,
+		printOpts: PrinterOptions,
+		comments: Array<AnyComment> = [],
+	) {
 		this.options = opts;
+		this.printOptions = printOpts;
 		this.comments = new CommentsConsumer(comments);
 		this.printedComments = new Set();
 		this.printStack = [];
@@ -46,6 +52,7 @@ export default class Builder {
 
 	private language: undefined | DiagnosticLanguage;
 	public options: BuilderOptions;
+	private printOptions: PrinterOptions;
 	private comments: CommentsConsumer;
 	private printedComments: Set<string>;
 	private printStack: Array<AnyNode>;
@@ -284,5 +291,19 @@ export default class Builder {
 		}
 
 		return bStartLine - aEndLine;
+	}
+
+	public alignCenter(token: Token, width: number): Token {
+		const printed = printTokenToString(token, this.printOptions).code;
+		const diff = width - printed.length;
+		if (diff > 0) {
+			return (
+				" ".repeat(Math.floor(diff / 2)) +
+				printed +
+				" ".repeat(Math.ceil(diff / 2))
+			);
+		} else {
+			return printed;
+		}
 	}
 }
