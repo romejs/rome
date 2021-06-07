@@ -1,0 +1,59 @@
+.style {
+	text-decoration: none;
+}
+
+.style {
+	text-decoration: dashed;
+}
+
+.style {
+	text-decoration: dotted;
+}
+
+.style {
+	text-decoration: double;
+}
+
+.style {
+	text-decoration: line-through;
+}
+
+.style {
+	text-decoration: overline;
+}
+
+.style {
+	text-decoration: underline;
+}
+
+.style {
+	text-decoration: wavy;
+}
+
+.style {
+	text-decoration: solid;
+}
+
+.style {
+	text-decoration: blink;
+}
+
+.style {
+	text-decoration: solid underline purple 4px;
+}
+
+.style {
+	text-decoration: dashed underline overline;
+}
+
+.style {
+	text-decoration: wavy overline lime;
+}
+
+.style {
+	text-decoration: underline red;
+}
+
+.style {
+	text-decoration: underline overline #FF3028;
+}
