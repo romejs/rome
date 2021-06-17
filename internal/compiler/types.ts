@@ -61,6 +61,13 @@ export interface TypedVisitor<
 }
 
 // rome-ignore lint/ts/noExplicitAny: future cleanup
+export interface LintVisitor<State extends UnknownObject = any> {
+	name: LintRuleName;
+	enter?: (path: CompilerPath, state: VisitorStateEnter<State>) => EnterSignal;
+	exit?: (path: CompilerPath, state: VisitorStateExit<State>) => ExitSignal;
+}
+
+// rome-ignore lint/ts/noExplicitAny: future cleanup
 export type AnyVisitor = Visitor<any>;
 
 export type CompileRequest = TransformRequest & {

@@ -16,9 +16,9 @@ import {
 import {Consumer, consumeUnknown} from "@internal/consume";
 import {DeepPartial, Dict} from "@internal/typescript-helpers";
 import {SemverRange} from "@internal/codec-semver";
-import {LintRuleName} from "@internal/compiler";
 import {DIAGNOSTIC_CATEGORIES} from "@internal/diagnostics";
 import {GetBrowserProps} from "@internal/browser-features";
+import {LintConfig, UserProjectRules} from "@internal/project/lint";
 
 // Project wrapper that contains some other metadata
 export type ProjectDefinition = {
@@ -48,7 +48,11 @@ export type DependenciesExceptions = {
 
 export type ProjectConfigPresetNames = "electron" | "cypress" | "jest";
 
-type Enableable = {
+export type Recommendable = {
+	recommended?: boolean;
+};
+
+export type Enableable = {
 	enabled: boolean;
 };
 
@@ -73,12 +77,7 @@ export type ProjectConfigObjects = {
 	check: {
 		dependencies: boolean;
 	};
-	lint: Enableable & {
-		globals: string[];
-		ignore: PathPattern[];
-		requireSuppressionExplanations: boolean;
-		disabledRules: LintRuleName[];
-	};
+	lint: Enableable & LintConfig;
 	typeCheck: Enableable & {
 		libs: AbsoluteFilePathSet;
 	};
@@ -181,8 +180,8 @@ export type RawUserProjectConfig = DeepPartial<{
 	lint: Enableable & {
 		ignore: string[];
 		globals: string[];
-		disabledRules: string[];
 		requireSuppressionExplanations: boolean;
+		rules: UserProjectRules;
 	};
 	format: {
 		enabled: boolean;
@@ -275,7 +274,6 @@ export function createDefaultProjectConfig(): ProjectConfig {
 			ignore: [],
 			globals: [],
 			requireSuppressionExplanations: true,
-			disabledRules: [],
 		},
 		tests: {
 			ignore: [],
