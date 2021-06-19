@@ -60,7 +60,9 @@ export default createServerCommand<Flags>({
 
 		// Check for no or dirty repo
 		if (checkVSC) {
-			const vcsClient = await getVCSClient(cwd);
+			const vcsClient = await getVCSClient(
+				cwd,
+			);
 			if (vcsClient === undefined) {
 				throw createSingleDiagnosticsError({
 					location: req.getDiagnosticLocationForClientCwd(),

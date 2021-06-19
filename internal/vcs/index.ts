@@ -30,15 +30,15 @@ export class VCSClient {
 
 	public root: AbsoluteFilePath;
 
-	public getDefaultBranch(): Promise<string> {
-		throw new Error("unimplemented");
-	}
-
-	public getModifiedFiles(branch: string): Promise<string[]> {
+	public getModifiedFiles(target: string): Promise<string[]> {
 		throw new Error("unimplemented");
 	}
 
 	public getUncommittedFiles(): Promise<string[]> {
+		throw new Error("unimplemented");
+	}
+
+	public getDefaultBranch(): string {
 		throw new Error("unimplemented");
 	}
 }
@@ -48,22 +48,6 @@ class GitVCSClient extends VCSClient {
 		super(root);
 	}
 
-	public async getDefaultBranch(): Promise<string> {
-		const exitCode = await spawn(
-			"git",
-			["show-ref", "--verify", "--quiet", "refs/heads/main"],
-			{cwd: this.root},
-		).wait();
-		return exitCode === 0 ? "main" : "master";
-	}
-
-	public async getUncommittedFiles(): Promise<string[]> {
-		const stdout = (await spawn("git", ["status", "--short"], {cwd: this.root}).waitSuccess()).getOutput(
-			true,
-			false,
-		);
-		return extractFileList(stdout);
-	}
 
 	public async getModifiedFiles(branch: string): Promise<string[]> {
 		const stdout = (await spawn(
