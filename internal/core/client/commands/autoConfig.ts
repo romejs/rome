@@ -4,6 +4,7 @@ import {markup} from "@internal/markup";
 import ClientRequest from "@internal/core/client/ClientRequest";
 import {consumeUnknown} from "@internal/consume";
 import {DIAGNOSTIC_CATEGORIES} from "@internal/diagnostics";
+import {escapePath} from "@internal/core/server/utils/escapeObjectPaths";
 
 interface Flags {
 	allowDirty: boolean;
@@ -130,6 +131,69 @@ export default createLocalCommand({
 					}
 				}
 			}
+		}
+
+		if (data.has("aliases")) {
+			const aliases = data.get("aliases");
+
+			if (aliases.has("base")) {
+				const base = aliases.get("base").asString();
+				const changeBase = await reporter.radioConfirm(
+					markup`Would you like to import <emphasis>${base}</emphasis> inside your configuration?`,
+				);
+				if (changeBase) {
+					await req.client.query(
+						{
+							commandName: "config set",
+							args: ["aliases.base", base],
+						},
+						"server",
+					);
+				}
+			}
+
+			if (aliases.has("paths")) {
+				const paths = aliases.get("paths").asMappedArray((item) =>
+					(item.asPlainArray() as [string, string[]])
+				);
+
+				if (paths.length > 0) {
+					reporter.info(
+						markup`Rome detected path aliases configured in your <emphasis>tsconfig.json</emphasis> and will try to import them.`,
+					);
+
+					const pathKeys = paths.map((item) => `<emphasis>${item[0]}</emphasis>`).join(
+						", ",
+					);
+					const addPaths = await reporter.radioConfirm(
+						markup`Would you like to import the following aliases ${pathKeys} in your Rome's configuration?`,
+					);
+					if (addPaths) {
+						for (const [alias, targets] of paths) {
+							const configPath = `aliases.paths.${escapePath(alias)}`;
+							await req.client.query({
+								commandName: "config set",
+								args: [configPath, "[]"],
+							});
+
+							await req.client.query(
+								{
+									commandName: "config push",
+									args: [configPath, ...targets],
+								},
+								"server",
+							);
+						}
+					}
+				}
+			}
+
+			reporter.warn(
+				markup`Rome won't keep track of imported configuration from <emphasis>tsconfig.json</emphasis>.`,
+			);
+			reporter.warn(
+				markup`You must re-run <emphasis>auto-config</emphasis> if you want to import settings from <emphasis>tsconfig.json</emphasis> again.`,
+			);
 		}
 
 		if (savedCheckFiles !== undefined && remainingCheckErrors !== undefined) {

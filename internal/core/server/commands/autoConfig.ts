@@ -4,12 +4,16 @@ import {commandCategories} from "@internal/core/common/commands";
 import {ServerRequest} from "@internal/core";
 import {getVCSClient} from "@internal/vcs";
 import {
+	DIAGNOSTIC_CATEGORIES,
 	Diagnostic,
 	createSingleDiagnosticsError,
 	descriptions,
 } from "@internal/diagnostics";
 import {UnknownObject} from "@internal/typescript-helpers";
 import Checker from "../checker/Checker";
+import {json5} from "@internal/codec-config";
+import {aliasPatternToString} from "@internal/project/aliases";
+import {consumeUnknown} from "@internal/consume";
 
 interface Flags extends UnknownObject {
 	checkVSC: boolean;
@@ -21,6 +25,10 @@ export type AutoConfig = {
 		savedCount: number;
 	};
 	licenses?: Diagnostic[];
+	aliases?: {
+		base?: string;
+		paths?: [string, string[]][];
+	};
 };
 
 export default createServerCommand<Flags>({
@@ -105,6 +113,57 @@ export default createServerCommand<Flags>({
 								result.licenses = [];
 							}
 							result.licenses.push(...diagnostics);
+						}
+					}
+				},
+			},
+			{
+				message: markup`Import path aliases from tsconfig.`,
+				async callback() {
+					const tsconfigPath = currentProject.directory.append("tsconfig.json");
+					if (await tsconfigPath.exists()) {
+						const tsconfigData = json5.parse({
+							input: await tsconfigPath.readFileText(),
+						});
+						const tsconfig = consumeUnknown(
+							tsconfigData,
+							DIAGNOSTIC_CATEGORIES.parse,
+							"json",
+						);
+
+						if (!tsconfig.has("compilerOptions")) {
+							return;
+						}
+
+						const compilerOptions = tsconfig.get("compilerOptions");
+						result.aliases = {};
+
+						const baseUrl = compilerOptions.get("baseUrl");
+						if (baseUrl.exists()) {
+							result.aliases.base = baseUrl.asString();
+						}
+
+						const paths = compilerOptions.get("paths");
+						const resultPaths: [string, string[]][] = [];
+						if (paths.exists()) {
+							const currentPaths = currentProject.config.aliases.paths.map((
+								item,
+							) => item[0]);
+							const currentPathsSet = new Set<string>();
+							for (const alias of currentPaths) {
+								currentPathsSet.add(aliasPatternToString(alias));
+							}
+
+							for (const [alias, targetsConsumer] of paths.asMap()) {
+								const targets = targetsConsumer.asMappedArray((target) =>
+									target.asString()
+								);
+								if (!currentPathsSet.has(alias)) {
+									resultPaths.push([alias, targets]);
+								}
+							}
+
+							result.aliases.paths = resultPaths;
 						}
 					}
 				},

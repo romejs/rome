@@ -12,7 +12,11 @@ import {
 } from "@internal/codec-js-manifest";
 import Server from "../Server";
 import {PLATFORM_ALIASES, Platform} from "../../common/types/platform";
-import {ProjectDefinition, createDefaultProjectConfig} from "@internal/project";
+import {
+	ProjectConfig,
+	ProjectDefinition,
+	createDefaultProjectConfig,
+} from "@internal/project";
 import {FileReference} from "@internal/core";
 import resolverSuggest from "./resolverSuggest";
 import {
@@ -29,6 +33,10 @@ import {MOCKS_DIRECTORY_NAME} from "@internal/core/common/constants";
 import {Consumer} from "@internal/consume";
 import {markup} from "@internal/markup";
 import https = require("https");
+import {
+	buildPathFromAliasPattern,
+	matchAliasPattern,
+} from "@internal/project/aliases";
 
 function request(
 	url: string,
@@ -427,17 +435,7 @@ export default class Resolver {
 			switch (protocol) {
 				case "http:":
 				case "https:": {
-					let projectConfig = createDefaultProjectConfig();
-
-					if (origin.isAbsolute()) {
-						const project = this.server.projectManager.findLoadedProject(
-							query.origin.assertAbsolute(),
-						);
-						if (project !== undefined) {
-							projectConfig = project.config;
-						}
-					}
-
+					const projectConfig = this.getProjectConfig(query);
 					const remotePath = projectConfig.files.vendorPath.append(
 						source.join().replace(/[\/:]/g, "$").replace(/\$+/g, "$"),
 					);
@@ -513,6 +511,18 @@ export default class Resolver {
 			return this.resolvePath(query);
 		}
 
+		// Try aliased paths first if they exist
+		const projectConfig = this.getProjectConfig(query);
+		for (const aliasedPath of this.getAliasedPaths(query, projectConfig.aliases)) {
+			const resolved = this.resolvePath({
+				...query,
+				source: aliasedPath,
+			});
+			if (resolved.type === "FOUND") {
+				return resolved;
+			}
+		}
+
 		// Now resolve it as a module
 		const resolved = this.resolveModule(query);
 
@@ -522,6 +532,39 @@ export default class Resolver {
 		}
 
 		return resolved;
+	}
+
+	private getProjectConfig(
+		query: ResolverLocalQuery | ResolverRemoteQuery,
+	): ProjectConfig {
+		let projectConfig = createDefaultProjectConfig();
+		if (query.origin.isAbsolute()) {
+			const project = this.server.projectManager.findLoadedProject(
+				query.origin.assertAbsolute(),
+			);
+			if (project !== undefined) {
+				projectConfig = project.config;
+			}
+		}
+		return projectConfig;
+	}
+
+	private *getAliasedPaths(
+		query: ResolverLocalQuery,
+		aliasesConfig: ProjectConfig["aliases"],
+	): Iterable<AbsoluteFilePath> {
+		const queryPath = query.source.toString();
+		for (const [alias, targets] of aliasesConfig.paths) {
+			const matchedPath = matchAliasPattern(queryPath, alias);
+			if (matchedPath === undefined) {
+				continue;
+			}
+
+			for (const target of targets) {
+				const newPath = buildPathFromAliasPattern(matchedPath, target);
+				yield aliasesConfig.base.resolve(newPath);
+			}
+		}
 	}
 
 	private *getFilenameVariants(
