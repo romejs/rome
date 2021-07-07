@@ -28,6 +28,8 @@ export type CommandName =
 	| "config enable"
 	| "config push"
 	| "config set"
+	| "config remove"
+	| "config pop"
 	| "config set-directory"
 	| "develop"
 	| "format"
