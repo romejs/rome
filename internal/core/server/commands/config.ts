@@ -36,7 +36,15 @@ function defineFlags(c: Consumer): Flags {
 	};
 }
 
-type Action = "push" | "set" | "location" | "enable" | "disable" | "remove" | "pop" | "setDirectory"
+type Action =
+	| "push"
+	| "set"
+	| "location"
+	| "enable"
+	| "disable"
+	| "remove"
+	| "pop"
+	| "setDirectory";
 
 async function runCommand(
 	req: ServerRequest,
@@ -71,7 +79,7 @@ async function runCommand(
 				...(Array.isArray(value) ? value : []),
 			]);
 		} else if (action === "remove") {
-			const lastKey = keyParts[keyParts.length-1];
+			const lastKey = keyParts[keyParts.length - 1];
 			prevKeyConsumer.delete(lastKey);
 		} else if (action === "pop") {
 			const existing = Array.from(
@@ -79,7 +87,11 @@ async function runCommand(
 				(c) => c.asUnknown(),
 			);
 			const toRemove = Array.isArray(value) ? value : [];
-			keyConsumer.setValue(existing.filter(item => typeof item !== "string" || !toRemove.includes(item)));
+			keyConsumer.setValue(
+				existing.filter((item) =>
+					typeof item !== "string" || !toRemove.includes(item)
+				),
+			);
 		} else {
 			keyConsumer.setValue(value);
 		}
@@ -95,18 +107,19 @@ async function runCommand(
 			return;
 		}
 
-
 		switch (action) {
-			case "remove":
-				reporter.success(markup`Removing <emphasis>${keyPath}</emphasis> in the config <emphasis>${configPath}</emphasis>`);
-				break;
-			case "pop":
+			case "remove": {
 				reporter.success(
-					markup`Removing <emphasis>${prettyFormat(
-						value,
-					)}</emphasis> from <emphasis>${keyPath}</emphasis> in the config <emphasis>${configPath}</emphasis>`,
-				); 
+					markup`Removing <emphasis>${keyPath}</emphasis> in the config <emphasis>${configPath}</emphasis>`,
+				);
 				break;
+			}
+			case "pop": {
+				reporter.success(
+					markup`Removing <emphasis>${prettyFormat(value)}</emphasis> from <emphasis>${keyPath}</emphasis> in the config <emphasis>${configPath}</emphasis>`,
+				);
+				break;
+			}
 			default:
 				reporter.success(
 					markup`${action === "push" ? "Adding" : "Setting"} <emphasis>${prettyFormat(
@@ -313,7 +326,7 @@ export const remove = createServerCommand<Flags>({
 	async callback(req, flags) {
 		req.expectArgumentLength(1);
 		await runCommand(req, flags, req.query.args[1], "remove");
-	}
+	},
 });
 
 export const pop = createServerCommand<Flags>({
@@ -325,5 +338,5 @@ export const pop = createServerCommand<Flags>({
 	async callback(req, flags) {
 		req.expectArgumentLength(2, Infinity);
 		await runCommand(req, flags, req.query.args.slice(1), "pop");
-	}
+	},
 });
