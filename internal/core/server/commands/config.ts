@@ -305,7 +305,7 @@ export const push = createServerCommand<Flags>({
 });
 
 export const remove = createServerCommand<Flags>({
-	category: commandCategories.PROCESS_MANAGEMENT,
+	category: commandCategories.PROJECT_MANAGEMENT,
 	description: markup`modify a project config - remove ${"<key>"}`,
 	usage: "<key>",
 	examples: [],
@@ -317,7 +317,7 @@ export const remove = createServerCommand<Flags>({
 });
 
 export const pop = createServerCommand<Flags>({
-	category: commandCategories.PROCESS_MANAGEMENT,
+	category: commandCategories.PROJECT_MANAGEMENT,
 	description: markup`modify a project config - remove ${"<values>"} from ${"<key>"}`,
 	usage: "<key> <...values>",
 	examples: [],
