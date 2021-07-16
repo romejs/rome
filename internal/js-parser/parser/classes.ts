@@ -281,6 +281,7 @@ function parseClassMember(
 				optional: false,
 				abstract: false,
 				readonly: false,
+				declare: false,
 			},
 		);
 
@@ -338,17 +339,27 @@ function parseClassMemberWithIsStatic(
 ): undefined | AnyJSClassMember {
 	let abstract = false;
 	let readonly = false;
+	let declare = false;
 
-	const mod = parseTSModifier(parser, ["abstract", "readonly"]);
+	const mod = parseTSModifier(parser, ["abstract", "declare", "readonly"]);
 	switch (mod) {
 		case "readonly": {
 			readonly = true;
+			declare = hasTSModifier(parser, ["declare"]);
 			abstract = hasTSModifier(parser, ["abstract"]);
+			break;
+		}
+
+		case "declare": {
+			declare = true;
+			abstract = hasTSModifier(parser, ["abstract"]);
+			readonly = hasTSModifier(parser, ["readonly"]);
 			break;
 		}
 
 		case "abstract": {
 			abstract = true;
+			declare = hasTSModifier(parser, ["declare"]);
 			readonly = hasTSModifier(parser, ["readonly"]);
 			break;
 		}
@@ -358,11 +369,12 @@ function parseClassMemberWithIsStatic(
 		start,
 		static: isStatic,
 		accessibility,
+		declare,
 		readonly,
 		abstract,
 	};
 
-	if (!(abstract || isStatic) && accessibility === undefined) {
+	if (!(abstract || isStatic || declare) && accessibility === undefined) {
 		const indexSignature = tryTSParseIndexSignature(parser, start);
 		if (indexSignature) {
 			return {
@@ -373,7 +385,7 @@ function parseClassMemberWithIsStatic(
 	}
 
 	// Must be a property (if not an index signature).
-	if (readonly) {
+	if (readonly || declare) {
 		const {key, meta} = parseClassPropertyMeta(parser, nameOpts);
 		if (key.value.type === "JSPrivateName") {
 			return parseClassPrivateProperty(parser, start, key.value, meta);
@@ -628,6 +640,7 @@ function parseClassPropertyMeta(
 		start: Position;
 		static: boolean;
 		accessibility: undefined | ConstTSAccessibility;
+		declare: boolean;
 		readonly: boolean;
 		abstract: boolean;
 	},
