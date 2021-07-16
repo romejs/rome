@@ -1,6 +1,7 @@
 import {createDiagnosticsCategory} from "../index";
 import {buildSuggestionAdvice} from "../../helpers";
 import {markup} from "@internal/markup";
+import {DiagnosticLocation} from "@internal/diagnostics";
 
 export const cssParser = createDiagnosticsCategory({
 	INVALID_BLOCK_START: {message: markup`Invalid block start.`},
@@ -292,4 +293,50 @@ export const cssParser = createDiagnosticsCategory({
 			},
 		],
 	},
+
+	GRID_TEMPLATE_INCORRECT_AREAS: (
+		areas: number,
+		openLocation: DiagnosticLocation,
+	) => ({
+		message: markup`All template areas must have the same number. The first one had <emphasis>${areas}</emphasis> areas.`,
+		advice: [
+			{
+				type: "frame",
+				location: openLocation,
+			},
+		],
+	}),
+
+	GRID_TEMPLATE_UNSUPPORTED_VALUE: {
+		message: markup`Unsupported value for <emphasis>grid-template-areas</emphasis>. You should provide an identifier or a string`,
+	},
+
+	GRID_AREA_INCORRECT_SPAN: {
+		message: markup`The <emphasis>span</emphasis> attribute must be followed by a number or a grid area previously defined`,
+	},
+
+	GRID_AREA_INCORRECT_DELIMITER: {
+		message: markup`The only delimiter that can be used here is the <emphasis>slash ("/")</emphasis> `,
+	},
+
+	GRID_AREA_UNTERMINATED_GRID_LINE: {
+		message: markup`Incorrect grid line, you must complete the expression`,
+	},
+
+	GRID_AREA_TOO_MANY_GRID_LINES: (num: number) => ({
+		message: markup`A grid area can have a maximum of ${num} grid lines, your style has more`,
+	}),
+
+	GRID_INVALID_GLOBAL_VALUE: (validValues: string[]) => ({
+		message: markup`Incorrect identifier provided.`,
+		advice: [
+			{
+				type: "log",
+				category: "info",
+				text: markup`Accepted values are: ${validValues.map((v) =>
+					markup`<emphasis>${v}</emphasis>`
+				).join(", ")}`,
+			},
+		],
+	}),
 });

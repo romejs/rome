@@ -31,6 +31,7 @@ export type AnyCSSValue =
 	| n.CSSFitContentFunction
 	| n.CSSFlex
 	| n.CSSGridRepeatValue
+	| n.CSSGridTemplateAreaValue
 	| n.CSSRaw;
 
 export type AnyFunction =
