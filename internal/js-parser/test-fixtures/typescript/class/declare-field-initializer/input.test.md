@@ -26,11 +26,12 @@ JSRoot {
 						}
 						meta: JSClassPropertyMeta {
 							abstract: false
+							declare: true
 							optional: false
 							readonly: false
 							static: false
-							loc: SourceLocation typescript/class/declare-field-initializer/input.ts 2:10-2:13
-							start: Position 2:10
+							loc: SourceLocation typescript/class/declare-field-initializer/input.ts 2:2-2:13
+							start: Position 2:2
 						}
 						value: JSStringLiteral {
 							value: "test"
@@ -39,7 +40,7 @@ JSRoot {
 						typeAnnotation: TSStringKeywordTypeAnnotation {
 							loc: SourceLocation typescript/class/declare-field-initializer/input.ts 2:15-2:21
 						}
-						loc: SourceLocation typescript/class/declare-field-initializer/input.ts 2:10-2:31
+						loc: SourceLocation typescript/class/declare-field-initializer/input.ts 2:2-2:31
 					}
 				]
 				loc: SourceLocation typescript/class/declare-field-initializer/input.ts 1:0-3:1
@@ -49,23 +50,7 @@ JSRoot {
 	]
 	comments: []
 	corrupt: false
-	diagnostics: [
-		{
-			origins: [{entity: "ParserCore<js>"}]
-			description: {
-				advice: []
-				category: ["parse"]
-				categoryValue: "js"
-				message: RAW_MARKUP {value: "Unknown class property start"}
-			}
-			location: {
-				language: "js"
-				path: UIDPath<typescript/class/declare-field-initializer/input.ts>
-				end: Position 2:10
-				start: Position 2:10
-			}
-		}
-	]
+	diagnostics: []
 	directives: []
 	hasHoistedVars: false
 	sourceType: "module"
@@ -78,15 +63,5 @@ JSRoot {
 ### `diagnostics`
 
 ```
-
- typescript/class/declare-field-initializer/input.ts:2:10 parse(js) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ✖ Unknown class property start
-
-    1 │ class A {
-  > 2 │   declare bar: string = "test";
-      │           ^
-    3 │ }
-
 
 ```

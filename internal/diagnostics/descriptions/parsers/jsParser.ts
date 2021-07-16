@@ -291,8 +291,8 @@ export const jsParser = createDiagnosticsCategory({
 	TS_UNEXPECTED_CAST_IN_PARAMETER_POSITION: {
 		message: markup`Unexpected type cast in parameter position`,
 	},
-	TS_DISABLED_BUT_ACCESSIBILITY_OR_READONLY: {
-		message: markup`Accessibility and readonly syntax found but TS is not enabled`,
+	TS_DISABLED_BUT_ACCESSIBILITY_OR_READONLY_OR_DECLARE: {
+		message: markup`Accessibility, readonly, or declare syntax found but TS is not enabled`,
 	},
 	TS_PARAMETER_PROPERTY_BINDING_PATTERN: {
 		message: markup`A parameter property may not be declared using a binding pattern.`,
