@@ -26,13 +26,14 @@ JSRoot {
 						}
 						meta: JSClassPropertyMeta {
 							abstract: false
+							declare: true
 							optional: false
 							readonly: false
 							static: false
-							loc: SourceLocation typescript/class/declare-field/input.ts 2:10-2:13
-							start: Position 2:10
+							loc: SourceLocation typescript/class/declare-field/input.ts 2:2-2:13
+							start: Position 2:2
 						}
-						loc: SourceLocation typescript/class/declare-field/input.ts 2:10-2:14
+						loc: SourceLocation typescript/class/declare-field/input.ts 2:2-2:14
 					}
 					JSClassProperty {
 						key: JSStaticPropertyKey {
@@ -44,16 +45,17 @@ JSRoot {
 						}
 						meta: JSClassPropertyMeta {
 							abstract: false
+							declare: true
 							optional: false
 							readonly: false
 							static: false
-							loc: SourceLocation typescript/class/declare-field/input.ts 3:10-3:13
-							start: Position 3:10
+							loc: SourceLocation typescript/class/declare-field/input.ts 3:2-3:13
+							start: Position 3:2
 						}
 						typeAnnotation: TSStringKeywordTypeAnnotation {
 							loc: SourceLocation typescript/class/declare-field/input.ts 3:15-3:21
 						}
-						loc: SourceLocation typescript/class/declare-field/input.ts 3:10-3:22
+						loc: SourceLocation typescript/class/declare-field/input.ts 3:2-3:22
 					}
 				]
 				loc: SourceLocation typescript/class/declare-field/input.ts 1:0-4:1
@@ -63,23 +65,7 @@ JSRoot {
 	]
 	comments: []
 	corrupt: false
-	diagnostics: [
-		{
-			origins: [{entity: "ParserCore<js>"}]
-			description: {
-				advice: []
-				category: ["parse"]
-				categoryValue: "js"
-				message: RAW_MARKUP {value: "Unknown class property start"}
-			}
-			location: {
-				language: "js"
-				path: UIDPath<typescript/class/declare-field/input.ts>
-				end: Position 2:10
-				start: Position 2:10
-			}
-		}
-	]
+	diagnostics: []
 	directives: []
 	hasHoistedVars: false
 	sourceType: "module"
@@ -92,16 +78,5 @@ JSRoot {
 ### `diagnostics`
 
 ```
-
- typescript/class/declare-field/input.ts:2:10 parse(js) ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-  ✖ Unknown class property start
-
-    1 │ class A {
-  > 2 │   declare foo;
-      │           ^
-    3 │   declare bar: string;
-    4 │ }
-
 
 ```
